@@ -1,49 +1,18 @@
-#!/usr/bin/env python
-
 """
-Ordr.in JavaScript Library Alpha
+Ordr.in Python Library Alpha
 http://www.ordr.in
 
 Copyright 2011
-Last updated: Tuesday, July 7
+Last updated: July 11
 """
 
-import urllib2, re, json, datetime
+import datetime, re, r, u
 
-class Restaurant():
-  def deliveryList(self, dT, addr):
-    _apiRequest("r", "dl", dT.convertForRAPI(), addr.zip, addr.city, addr.street)
-  def deliveryCheck(self, rID, dT, addr):
-    _apiRequest("r", "dc", rID, dT.convertForRAPI(), addr.zip, addr.city, addr.street)
-  def deliveryFee(self, rID, subtotal, tip, dT, addr):
-    _apiRequest("r", "fee", rID, subtotal, tip, dT.convertForRAPI(), addr.zip, addr.city, addr.street)
-  def details(self, rID):
-    _apiRequest("r", "rd", rID)
-
-def _apiRequest(api, request, *args):
-  dataParams = []
-  urlParams = []
-  
-  # seperate arguments into appropriate lists
-  for i in args:
-    i = str(i)
-    if re.search("=", i):
-      dataParams.append(i)
-    else:
-      urlParams.append(i)
-
-  url = "http://nn2.deasil.com/" + request + "/" + "/".join(urlParams)
-  print url + "\n"
-  
-  print urllib2.urlopen(url).read()
-  # return json.loads(response.read())
-  
 class Address():
   def __init__(self, street, city, zip, street2="", state="", phone="", nick=""):
     self.nick = nick
     self.street = "+".join(street.split(" "))
-    if street2 != "":
-      self.street2 = "+".join(street2.split(" "))
+    self.street2 = "+".join(street2.split(" "))
     self.city = "+".join(city.split(" "))
     self.zip = zip
     self.state = state
@@ -76,10 +45,6 @@ class dTime(datetime.datetime):
 
 class Money():
   def __init__(self, amount):
-    self.amount = amount
+    self.amount = int(amount)
   def convertForRAPI(self):
-    if (re.match("/^\s*\d+\s*$/", amount)):
-      Ordrin._errs.push("validation", "money")
-    else:
-      return int(self.amount) * 100
-    
+    return self.amount * 100
