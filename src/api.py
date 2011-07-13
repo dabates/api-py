@@ -6,6 +6,8 @@ _url = ""
 _currEmail = ""
 _currPass = ""
 
+_errs = []
+
 def initialize(key, url):
   global _key, _url
   _key = key
@@ -19,6 +21,11 @@ def setCurrAcct(currEmail, currPass):
 def _request(type, *args):
   dataParams = []
   urlParams = []
+  
+  if not _key:
+    _errs.append(("initialization", "must initialize with developer key for API"))
+  elif not _url:
+    _errs.append(("initialization", "must initialize with site at which API is running"))
   
   # seperate arguments into appropriate lists
   for i in args:
@@ -42,11 +49,18 @@ def _request(type, *args):
   request.add_header("Content-Type", "application/x-www-form-urlencoded");
   
   if args[0] == "u":
+    if not _currEmail or not _currPass:
+      _errs.append(("user API", "valid email and password required to access user API"))
     print "Hash is being created."
     hash = hashlib.sha256(_currPass + _currEmail + append).hexdigest()
     print "hash: " + hash
     request.add_header("X-NAAMA-AUTHENTICATION", 'username="' + _currEmail + '", response="' + hash + '", version="1"')
     print "header looks like: " + 'username="' + _currEmail + '", response="' + hash + '", version="1"'
+  
+  if _errs:
+    print _errs
+    return _errs
+    raise
   
   request.get_method = lambda: type
   call = opener.open(request)

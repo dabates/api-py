@@ -6,7 +6,7 @@ Copyright 2011
 Last updated: July 11
 """
 
-import datetime, re, r, u
+import datetime, re, r, u, api
 
 class Address():
   def __init__(self, street, city, zip, street2="", state="", phone="", nick=""):
@@ -18,19 +18,23 @@ class Address():
     self.state = state
     self.phone = phone
   def validate(self, element="all"):
-    if element == "zip":
-      re.match("(^\d{5}$)|(^\d{5}-\d{4}$)", self.zip)
-    elif element == "phone":
-      re.match("(^\(?(\d{3})\)?[- .]?(\d{3})[- .]?(\d{4})$)", self.phone)
-    elif element == "city":
-      re.match("[A-Za-z.-]", self.city)
-    elif element == "state":
-      re.match("^([A-Za-z]){2}$", self.state)
+    if element == "zip" and not re.match("(^\d{5}$)|(^\d{5}-\d{4}$)", self.zip):
+      api._errs.append(("validation - address", "zipcode"))
+    elif element == "phone" and self.phone and not re.match("(^\(?(\d{3})\)?[- .]?(\d{3})[- .]?(\d{4})$)", self.phone):
+      api._errs.append(("validation - address", "phone"))
+    elif element == "city" and not re.match("[A-Za-z.-]", self.city):
+      api._errs.append(("validation - address", "city"))
+    elif element == "state" and self.state and not re.match("^([A-Za-z]){2}$", self.state):
+      api._errs.append(("validation - address", "state"))
     else:
-      re.match("(^\d{5}$)|(^\d{5}-\d{4}$)", self.zip)
-      re.match("^\(?(\d{3})\)?[- .]?(\d{3})[- .]?(\d{4})$", self.phone)
-      re.match("[A-Za-z.-]", self.city)
-      re.match("^([A-Za-z]){2}$", self.state)
+      if not re.match("(^\d{5}$)|(^\d{5}-\d{4}$)", self.zip):
+        api._errs.append(("validation - address", "zip"))
+      if self.phone and not re.match("^\(?(\d{3})\)?[- .]?(\d{3})[- .]?(\d{4})$", self.phone):
+        api._errs.append(("validation - address", "phone"))
+      if not re.match("[A-Za-z.-]", self.city):
+        api._errs.append(("validation - address", "city"))
+      if self.state and not re.match("^([A-Za-z]){2}$", self.state):
+        api._errs.append(("validation - address", "state"))
   def convertForRAPI(self):
     return self.zip + "/" + self.city + "/" + self.street;
 
@@ -45,6 +49,9 @@ class dTime(datetime.datetime):
 
 class Money():
   def __init__(self, amount):
-    self.amount = int(amount)
+    if not amount.isdigit():
+      api._errs.append(("validation", "money must be numerical"))
+    else:
+      self.amount = amount
   def convertForRAPI(self):
     return self.amount * 100
