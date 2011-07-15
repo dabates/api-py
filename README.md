@@ -36,6 +36,8 @@ Usage
 	u.orderHistory("12") # returns previous order; if no ID given, all previous orders listed
 	
 	u.updatePassword("newPassword") # sets new password
+	
+	o.submit("142", tray, tip, when, "test@testing.com", "John", "Doe", place, "John Doe", "4111111111111111", "444", "0212", place) # tray as [item ID][quantity][options]-[item ID-2][quantity]
        
 Notes
 ----- 

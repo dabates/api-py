@@ -6,7 +6,7 @@ Copyright 2011
 Last updated: July 11
 """
 
-import datetime, re, r, u, api
+import datetime, re, r, u, o, api
 
 class Address():
   def __init__(self, street, city, zip, street2="", state="", phone="", nick=""):
@@ -19,28 +19,49 @@ class Address():
     self.phone = phone
   def validate(self, element="all"):
     if element == "zip" and not re.match("(^\d{5}$)|(^\d{5}-\d{4}$)", self.zip):
-      api._errs.append(("validation - address", "zipcode"))
+      api._errs.append("Address object - validation - zip code (invalid)")
     elif element == "phone" and self.phone and not re.match("(^\(?(\d{3})\)?[- .]?(\d{3})[- .]?(\d{4})$)", self.phone):
-      api._errs.append(("validation - address", "phone"))
+      api._errs.append("Address object - validation - phone number (invalid)")
     elif element == "city" and not re.match("[A-Za-z.-]", self.city):
-      api._errs.append(("validation - address", "city"))
+      api._errs.append("Address object - validation - city (invalid, only letters/spaces allowed)")
     elif element == "state" and self.state and not re.match("^([A-Za-z]){2}$", self.state):
-      api._errs.append(("validation - address", "state"))
+      api._errs.append("Address object - validation - state (invalid, only letters allowed and must be passed as two-letter abbreviation)")
     else:
       if not re.match("(^\d{5}$)|(^\d{5}-\d{4}$)", self.zip):
-        api._errs.append(("validation - address", "zip"))
+        api._errs.append("Address object - validation - zip code (invalid)")
       if self.phone and not re.match("^\(?(\d{3})\)?[- .]?(\d{3})[- .]?(\d{4})$", self.phone):
-        api._errs.append(("validation - address", "phone"))
+        api._errs.append("Address object - validation - phone number (invalid)")
       if not re.match("[A-Za-z.-]", self.city):
-        api._errs.append(("validation - address", "city"))
+        api._errs.append("Address object - validation - city (invalid, only letters/spaces allowed)")
       if self.state and not re.match("^([A-Za-z]){2}$", self.state):
-        api._errs.append(("validation - address", "state"))
+        api._errs.append("Address object - validation - state (invalid, only letters allowed and must be passed as two-letter abbreviation)")
   def convertForRAPI(self):
     return self.zip + "/" + self.city + "/" + self.street;
 
 class dTime(datetime.datetime):
   def asap(self):
     self.asap = 1
+  def strAPI(self, element):
+    if element == "month":
+      if self.month < 10:
+        return "0" + str(self.month)
+      else:
+        return self.month
+    if element == "day":
+      if self.day < 10: 
+        return "0" + str(self.day)
+      else:
+        return self.day
+    if element == "hour":
+      if self.hour < 10:
+        return "0" + str(self.hour)
+      else:
+        return self.hour
+    if element == "minute":
+      if self.minute < 10:
+        return "0" + str(self.minute)
+      else:
+        return self.minute
   def convertForRAPI(self):
     if self.asap == 1:
       return "ASAP"
@@ -49,9 +70,9 @@ class dTime(datetime.datetime):
 
 class Money():
   def __init__(self, amount):
-    if not amount.isdigit():
+    if not int(amount):
       api._errs.append(("validation", "money must be numerical"))
     else:
       self.amount = amount
   def convertForRAPI(self):
-    return self.amount * 100
+    return str(self.amount * 100)
