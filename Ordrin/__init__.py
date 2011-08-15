@@ -62,7 +62,7 @@ class dTime(datetime.datetime):
         return "0" + str(self.minute)
       else:
         return self.minute
-  def convertForRAPI(self):
+  def _convertForRAPI(self):
     if self.asap == 1:
       return "ASAP"
     else:
@@ -75,4 +75,4 @@ class Money():
     else:
       self.amount = amount
   def _convertForRAPI(self):
-    return str(self.amount * 100)
+    return str(self.amount)
